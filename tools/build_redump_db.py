@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Build the embedded disc database from Redump's serial DAT files.
+"""Build the embedded disc database from Redump's DAT files.
 
 With no DAT paths, the script downloads these zips and deletes them afterward:
 
-    http://redump.org/datfile/psx/serial
-    http://redump.org/datfile/ps2/serial
-    http://redump.org/datfile/ps3/serial
+    https://redump.info/datfile/PSX/serial,version
+    https://redump.info/datfile/PS2/serial,version
+    https://redump.info/datfile/PS3/serial,version
 
-Each game in those files has a <serial> child. The plain Redump DAT has
-checksums and names, but no serial, and this script rejects it.
+Each game in those files has a <serial> child. A <version> child may be
+present and is not stored. The plain Redump DAT has checksums and names,
+but no serial, and this script rejects it.
 
 Redump's game name is the dump stem and the name shown for the disc. Whole
 images (.iso, and a .bin that is not a track split) are stored with their
@@ -54,11 +55,11 @@ CREATE TABLE tracks (
 ) WITHOUT ROWID;
 """
 
-# Redump serves these over HTTP. Port 443 refuses the connection.
+# Serial-only DAT URLs are deprecated. redump.info serves serial,version over HTTPS.
 SERIAL_DAT_URLS = (
-    "http://redump.org/datfile/psx/serial",
-    "http://redump.org/datfile/ps2/serial",
-    "http://redump.org/datfile/ps3/serial",
+    "https://redump.info/datfile/PSX/serial,version",
+    "https://redump.info/datfile/PS2/serial,version",
+    "https://redump.info/datfile/PS3/serial,version",
 )
 # Redump answers 403 when the request has no User-Agent.
 REDUMP_USER_AGENT = "Mozilla/5.0"
@@ -268,8 +269,8 @@ def load_dat(db: sqlite3.Connection, path: Path, stats: dict[str, int]) -> None:
         raise RuntimeError(f"{path} has no games")
     if not saw_serial:
         raise RuntimeError(
-            f"{path} has no <serial> elements. Download the serial DAT, for example "
-            "http://redump.org/datfile/psx/serial"
+            f"{path} has no <serial> elements. Download the serial,version DAT, for example "
+            "https://redump.info/datfile/PSX/serial,version"
         )
 
 
@@ -357,7 +358,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--asm", type=Path, required=True)
-    parser.add_argument("dats", type=Path, nargs="*", help="Local DAT or zip paths. Omit to download the serial DATs.")
+    parser.add_argument("dats", type=Path, nargs="*", help="Local DAT or zip paths. Omit to download the serial,version DATs.")
     args = parser.parse_args()
     if args.dats:
         build_db(args.dats, args.out)

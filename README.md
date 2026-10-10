@@ -6,7 +6,7 @@ Status lines go to the Klog on both consoles. The payload polls every 1.5 second
 
 ## Build
 
-The PS4 and PS5 payload SDKs must be installed, and the machine needs Python 3 plus a network path to [redump.org](http://redump.org) so the serial DAT files can be downloaded.
+The PS4 and PS5 payload SDKs must be installed, and the machine needs Python 3 plus a network path to [redump.info](https://redump.info) so the DAT files can be downloaded.
 
 ```sh
 ./build.sh
@@ -35,13 +35,13 @@ cmake --build build/ps4
 cmake --build build/ps5
 ```
 
-The first build downloads the PlayStation, PlayStation 2, and PlayStation 3 serial DATs, builds a SQLite database, and links it into the ELF. The download runs again only when `tools/build_redump_db.py` changes or the database object is missing. To build that database from files you already have:
+The first build downloads the PlayStation, PlayStation 2, and PlayStation 3 DATs, builds a SQLite database, and links it into the ELF. The download runs again only when `tools/build_redump_db.py` changes or the database object is missing. To build that database from files you already have:
 
 ```sh
 python3 tools/build_redump_db.py --out build/ps4/redump.db --asm build/ps4/redump_db.S path/to/psx.zip path/to/ps2.zip path/to/ps3.zip
 ```
 
-Those files must be the serial DATs (each game has a `<serial>` child), or zips of them. The plain Redump DAT has no serials and is rejected.
+Those files must be the serial,version DATs (each game has a `<serial>` child), or zips of them. A `<version>` child is ignored. The plain Redump DAT has no serials and is rejected.
 
 ## What it logs
 
@@ -138,7 +138,7 @@ PlayStation 3 dumps stop at the ISO. IRD output is present in the tree and turne
 
 ## Redump database
 
-Names and checksums come from an embedded SQLite database built from Redump's PlayStation, PlayStation 2, and PlayStation 3 serial DATs. The first lookup of a run prefers `/data/redump.db` when that path is a regular SQLite file of at most 64 MiB and its `serials`, `images`, and `tracks` statements prepare. That file then replaces the embedded database for the rest of the run.
+Names and checksums come from an embedded SQLite database built from Redump's PlayStation, PlayStation 2, and PlayStation 3 DATs. The first lookup of a run prefers `/data/redump.db` when that path is a regular SQLite file of at most 64 MiB and its `serials`, `images`, and `tracks` statements prepare. That file then replaces the embedded database for the rest of the run.
 
 ```text
 [Redump] /data/redump.db
